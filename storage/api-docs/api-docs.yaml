@@ -1,0 +1,67 @@
+openapi: 3.0.0
+info:
+  title: 'Laravel OpenApi Demo Documentation'
+  description: 'L5 Swagger OpenApi description'
+  contact:
+    email: admin@admin.com
+  license:
+    name: 'Apache 2.0'
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  version: 1.0.0
+servers:
+  -
+    url: 'http://localhost:9000/api/v1'
+    description: ' API Server'
+paths:
+  /:
+    get:
+      tags:
+        - Home
+      description: 'Home page'
+      operationId: 7960bed768120b06d9f467d2e41eb179
+      responses:
+        200:
+          description: 'Welcome page'
+  /user:
+    get:
+      tags:
+        - user
+      summary: 'get all the user in the database'
+      operationId: index
+      responses:
+        200:
+          description: 'successful operation'
+        400:
+          description: 'Invaild Data'
+    post:
+      tags:
+        - user
+      summary: 'Create A New User to the database here'
+      operationId: store
+      parameters:
+        -
+          name: Name
+          in: path
+          required: true
+          schema:
+            type: string
+        -
+          name: username
+          in: path
+          required: true
+          schema:
+            type: string
+        -
+          name: password
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: 'successful operation'
+tags:
+  -
+    name: Home
+  -
+    name: user
