@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 
 /**
  * @OA\Tag(
@@ -29,15 +32,13 @@ class UserController extends Controller
      *         response=200,
      *         description="successful operation"
      *     ), 
-     *     @OA\Response(
-     *         response=400,
-     *         description="Invaild Data"
-     *     )
      * )
      */
     public function index()
     {
-        return response()->json(["message" => "User"]);
+        $get = User::all();
+        $get = $get ?? [];
+        return response()->json(["message" => "success", "result" => $get]);
     }
 
     /**
@@ -56,35 +57,72 @@ class UserController extends Controller
      *         response="default",
      *         description="successful operation"
      *     ),
-     *     @OA\Parameter(
-     *         name="Name",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string"
+     *     @OA\RequestBody(
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                      type="object",
+     *                      @OA\Property(
+     *                          property="name",
+     *                          type="string"
+     *                      ),
+     *                      @OA\Property(
+     *                          property="email",
+     *                          type="string"
+     *                      ),
+     *                      @OA\Property(
+     *                          property="password",
+     *                          type="string"
+     *                      )
+     *                 ),
+     *                 example={
+     *                     "name":"example title",
+     *                     "email":"femi@gmail.com",
+     *                      "password":"ass"
+     *                }
+     *             )
      *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="username",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="password",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(
-     *             type="string",
-     *         )
-     *     ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="msg", type="string", example="success"),
+     *             
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="error",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="msg", type="string", example="fail"),
+     *          )
+     *      ),
+     *  
      * )
      */
     public function store(Request $request)
     {
-        return response()->json(["message" => "Welcome to laravel api"]);
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required',
+        ]);
+        // if ($validator) {
+        //     return response()->json(['error' => $validator['message']], 401);
+        // }
+        $saveUser = new User();
+        $saveUser->name = $request->name;
+
+        $token =  uniqid('yx');
+        $saveUser->remember_token = $token;
+        $saveUser->password = Hash::make($request->password);
+        $saveUser->email = $request->email;
+        if ($saveUser->save()) {
+            return response()->json(["message" => "success"]);
+        }
+        return response()->json(["message" => "fail"]);
     }
 
     /**
